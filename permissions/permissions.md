@@ -88,7 +88,8 @@ ls -l
 **What is *umask*?**
 The umask (user file-creation mode mask) controls the default permission bits subtracted from new files and directories when they’re created. Understanding *umask* is critical for controlling default security behavior. Without it, newly created files or directories might be too open, especially in multi-user environments.
 
-|Type	      |Base Permission	|Binary                             |
+|Type	        |Base Permission	|Binary                             |
+|-------------|-----------------|-----------------------------------|
 |Files	      |666 → rw-rw-rw-	|(No execute by default for safety) |
 |Directories  |777 → rwxrwxrwx	|(Execute is needed to enter/search)|
 
