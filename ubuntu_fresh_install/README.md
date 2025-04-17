@@ -12,9 +12,9 @@ Building a fresh Ubuntu 24.04 desktop environment and hardening the system. Tool
 
 - I'll be using Vmware Workstation Pro (17.x) for this build. As such, secure boot is not easily demonstrated in a virtual environment, but it should be noted that the use of secure boot (set in BIOS) is a crucial step in hardening any system, be it for personal use or in an enterprise environment. 
 - The install will be a minimal install, leaving out much of the additional and commonly installed apps. 
-- After the initial install and boot up, a second disk will be created for this system to be used as a virtual backup drive. 
+- After the initial install and boot up, a second disk will be created for this system to be used as a virtual backup drive.
 
-*Note: As this a VM demo, I won't be setting up the Ubuntu Pro, though I do use this on my host system. I would also point out here that my system isn't supported by the Kernel Livepatch as the version I have is (6.11.x), it would be highly recommeneded that when installing Ubuntu in a live enterprise environment that the supported kernel (6.8.x at the time of this lab) would be the best choice to enable automatic patching and updates to the system. This would also apply to any individual customer that doesn't want to handle manual updates as well.*
+---
 
 ### Post Install - First Boot
 
