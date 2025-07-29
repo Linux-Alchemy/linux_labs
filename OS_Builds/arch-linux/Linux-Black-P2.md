@@ -26,6 +26,8 @@ sudo reboot
 
 ### Installing the Preferred Terminal (Tilix)
 
+**Note on Tilix**: No, you don't have to use Tilix. Yes, I know Kitty is faster, and Ghostly is great. But we can at least all agree that the default GNOME terminal simply won't do. 
+
 First install Z Shell:
 ```bash
 sudo pacman -S zsh  # this should be done already from the main install but confirm anyways
@@ -139,6 +141,7 @@ sudo pacman -S gtk-engine-murrine
 # Install the theme and icons from the AUR 
 yay -S material-black-cherry-theme-git flat-remix-git
 ```
+*Note: I just installed the one theming engine that Material Black needs. If you want to use other themes, you might have to download other engines. 
 
 ---
 
@@ -183,7 +186,7 @@ sudo apparmor_status
 ```bash
 flatpak install flathub flatseal
 ```
-*Note: Flatpak acts as a sandbox around apps. This is being used on apps where FireJail either doesn't apply or is too restrictive on app function*
+*Note: This is being used on apps where FireJail either doesn't apply or is too restrictive on app function*
 
 ##### Lynis: Vulnerability Scanning Tool
 ```bash
