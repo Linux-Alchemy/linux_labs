@@ -14,7 +14,7 @@ In Virt Manager:
 - Memory: ~12GB RAM 
 - Disk: 50GB (SCSI or SATA)
 - Network: NAT 
-- Video: `QXL` [[Linux-Black-Phase1-changelog]]
+- Video: `QXL` [Changelog](https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
 - Mount the ISO as the boot device
 - **Don't power on the VM right away. First be sure to set it to boot up in UEFI**
 
@@ -264,7 +264,7 @@ ls /efi/EFI/GRUB
 # should see something like:
 grubx64.efi
 ```
-*See section 2 of the Changelog* [[Linux-Black-Phase1-changelog]]
+*See section 2 of the [Changelog}(https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
 
 ---
 
@@ -287,7 +287,7 @@ reboot
 
 #### Install and Configure Nvidia Driver
 
-*See section 3 of the Changelog* [[Linux-Black-Phase1-changelog]]
+*See section 3 of the [Changelog](https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
 
 *Note: This is performed immediately after the first reboot and login. The system is running on the base kernel, and the network is active. We install the proprietary NVIDIA driver and configure kernel parameters before installing a desktop environment.
 Also adding a crucial line in GRUB to ensure that AppArmor functions later when installed*
@@ -319,7 +319,7 @@ sudo reboot
 ---
 
 ##### Configure Snapper for Snapshot Management
-*See section 2 of the Changelog* [[Linux-Black-Phase1-changelog]]
+*See section 2 of the [Changelog](https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
 ```bash
 snapper -c root create-config /
 snapper -c home create-config /home
