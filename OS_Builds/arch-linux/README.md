@@ -1,7 +1,7 @@
 ## Arch Linux Black
 
 **Arch Linux Black** is a proof-of-concept build created as a lightweight, heavily customized Arch-based system. This is actually my fourth attempt to get it 'just right'.
-The more know I guess...The goal was to replicate the overall usability and visual styling of my daily driver — but built entirely from scratch on Arch, for full control and performance.
+The more know ya I guess...The goal was to replicate the overall usability and visual styling of my daily driver — but built entirely from scratch on Arch, for full control and performance.
 
 This build/project was as much about getting better with Linux as much as it was to have some fun with it.
 
