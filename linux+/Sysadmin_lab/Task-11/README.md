@@ -24,7 +24,7 @@ The updated topology consists of three machines:
 The complete topology is documented in the following files:
 
 - `basicprivate.png` – Static image of the network layout  
-- `basicprivate.pkt` – Interactive Packet Tracer file
+
 
 ---
 
