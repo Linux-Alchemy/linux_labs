@@ -6,7 +6,7 @@
 **Be sure to run the checksum to ensure the file integrity**
 
 #### Create the new VM
-*Note: I am using VMware Workstation Pro 17.x. Your actual setup may differ depending on what hypervisor you're using.*
+*Note: I am using Virt Manager (QEMU/KVM) Your actual setup may differ depending on what hypervisor you're using.*
 
 In Virt Manager:
 - Type: **Linux**
