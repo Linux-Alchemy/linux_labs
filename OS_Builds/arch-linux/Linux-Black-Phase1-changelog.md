@@ -7,16 +7,16 @@ This document summarizes the key decisions, troubleshooting steps, and final con
 
 ## 1. Virtual Machine Configuration (QEMU/KVM)
 
-I decided to build the system in **QEMU/KVM with virt-manager** from the start, rather than using VMware. This aligns with the long-term goal of using QEMU as the primary hypervisor on the bare-metal host and forces familiarity with its quirks in a safe environment. 
+I decided to build the system in **QEMU/KVM with virt-manager** from the start, rather than using VMware. This aligns with the long-term goal of using QEMU as the primary hypervisor on the bare-metal host and forces familiarity with its quirks.
 
 ### Initial Setup & Graphics Troubleshooting
 
 - **Firmware:** The VM was correctly configured to use UEFI by specifying the `OVMF_CODE_4M.fd` firmware file, which is mandatory for a modern build.
 - **Initial Boot Failure:** The first attempt to boot the VM with `VirtIO` video and `OpenGL` acceleration enabled resulted in an `eglInitialize failed` error.
-- **Diagnosis:** The error was traced to QEMU attempting to use the host's **NVIDIA RTX 3060** for rendering, whose proprietary driver rejected the connection. The host's integrated **AMD GPU** was identified as the more cooperative target.
-- **Resolution 1:** The VM's `Display Spice` settings were modified to explicitly use the AMD GPU's render node for OpenGL acceleration.
+- **Diagnosis:** The error was traced to QEMU attempting to use the host's **NVIDIA** for rendering, whose proprietary driver rejected the connection(as far as I could figure it anyway). The host's integrated **AMD GPU** was far more cooperative.
+- **Resolution 1:** The VM's `Display Spice` settings were modified to explicitly use the CPU's integrated graphics (I know, not ideal, but hey, it worked!)
 - **Black Screen on Boot:** This change resolved the EGL error but resulted in a black screen on boot, indicating a driver incompatibility between the Arch ISO's kernel and the `VirtIO` virtual GPU.
-- **Resolution 2 (The "Crawl, Walk, Run" Method):** The VM's video hardware was changed to the more compatible **`QXL` model**, and both **3D acceleration** and **OpenGL** were disabled. This provided a stable console for the OS installation phase. The plan is to revert to the high-performance `VirtIO-GL` configuration after the desktop environment and guest utilities are installed in the guest OS.
+- **Resolution 2:** The VM's video hardware was changed to the more compatible **`QXL` model**, and both **3D acceleration** and **OpenGL** were disabled. 
 
 ---
 
