@@ -7,6 +7,10 @@ Install GNOME and Friends
 # Install GNOME core, extensions, and management tools
 sudo pacman -S gnome gnome-tweaks gdm gnome-shell-extensions
 
+# for the case of installing this build as a VM in QEMU
+# these packages are needed to better manage the Vm including screen rez
+sudo pacman -S qemu-guest-agent spice-vdagent
+
 # Install AUR components: extension manager, dock, and GDM settings
 yay -S extension-manager gnome-shell-extension-dash-to-dock gdm-settings
 ```
@@ -58,6 +62,41 @@ sudo ln -s /etc/profile.d/vte-2.91.sh /etc/profile.d/vte.sh
 
 ---
 
+### Themes, Icons & Fonts Install 
+The stock GNOME dark mode is functional, but somewhat uninspired. So instead of lameness, we'll go something with a little flair and use the Material Black Dark Cherry theme. 
+This will also install the Flat-Remix Icon packs.
+
+Install Dependencies:
+Ensure you have the GTK Theme-Engines. If not install it now:
+```bash
+# Install the GTK theming engines
+sudo pacman -S gtk-engine-murrine
+
+# Install the theme and icons from the AUR 
+yay -S gtk-theme-material-black flat-remix-git
+```
+*Note: this command will install ALL of the repos for the Material Black theme and Flat-Remix icons.*
+
+If you don't want the entire theme and icon packs:
+```bash
+yay -G gtk-theme-material-black
+cd gtk-theme-material-black
+
+# then use nano or vim to edit the MAKEPKG file to remove what you don't want
+nano MAKEPKG
+
+yay -G flat-remix-git
+cd flat-remix-git
+nano MAKEPKG
+```
+
+Just adding a couple font packs
+```bash 
+yay -S ttf-firacode ttf-symbola
+```
+
+---
+
 ### Phase 1 Clean-up
 
 **Install pkgfile**
@@ -66,24 +105,10 @@ This package is useful for adding the 'command not found functionality' that giv
 ```bash
 sudo pacman -S pkgfile
 
-# after the install the database needs to updated and built
+# after the install the database needs to be updated and built
 sudo pkgfile --update
 ```
 
-**Resolve "Failed to set locale"**
-Set the system wide locale
-```bash
-# I don't know why I kept getting this error, but here's what fixed it
-
-sudo nano /etc/environment
-
-# add this line to the file --> if empty, this is all thats needed
-LANG=en_US.UTF-8
-# save and exit
-
-# Regenerate the locale
-sudo locale-gen
-```
 
 **Enabling Periodic TRIM**
 Enable and start the timer
@@ -127,24 +152,6 @@ sudo pacman -S firefox
 ```
 
 ---
-
-### Themes & Icons Install (Material Black - Dark Cherry)
-The stock GNOME dark mode is functional, but somewhat uninspired. So instead of lameness, we'll go something with a little flair and use the Material Black Dark Cherry theme. 
-This will also install the Flat-Remix Icon packs.
-
-Install Dependencies:
-Ensure you have the GTK Theme-Engines. If not install it now:
-```bash
-# Install the GTK theming engines
-sudo pacman -S gtk-engine-murrine
-
-# Install the theme and icons from the AUR 
-yay -S material-black-cherry-theme-git flat-remix-git
-```
-*Note: I just installed the one theming engine that Material Black needs. If you want to use other themes, you might have to download other engines. 
-
----
-
 ### Installing Security Tools
 
 ##### Firewall (ufw)
@@ -161,9 +168,10 @@ sudo pacman -S apparmor
 sudo systemctl enable --now apparmor.service
 
 # Check its status
-sudo apparmor_status
+sudo aa_status
 
-# at this point the filesystem is not yet mounted, GRUB needs a quick edit
+# if `aa-status` doesn't show a list of profiles running then make the following
+# change to grub -- this was done in phase 1, but if it got missed do it now
 
 sudo nano /etc/default/grub
 
@@ -186,7 +194,8 @@ sudo apparmor_status
 ```bash
 flatpak install flathub flatseal
 ```
-*Note: This is being used on apps where FireJail either doesn't apply or is too restrictive on app function*
+*Note: This is being used on apps where FireJail too restrictive on app function*
+
 
 ##### Lynis: Vulnerability Scanning Tool
 ```bash
@@ -209,6 +218,16 @@ Enable ClamAV
 ```bash
 # Enable the service to start automatically on boot and start it right now
 sudo systemctl enable --now clamav-freshclam.service
+```
+
+
+##### Timeshift
+Timeshift and timeshift-autosnap will be how the rollbacks are handled on this build
+```bash
+sudo pacman -S timeshift
+
+# timeshift-autosnap will hook into pacman and take snaps pre update/commands
+yay -S timeshift-autosnap
 ```
 
 ---

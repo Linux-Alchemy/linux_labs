@@ -1,3 +1,4 @@
+
 ### Phase 1: Base Install
 **If you haven't yet, download the ISO here:**
 
@@ -6,7 +7,9 @@
 **Be sure to run the checksum to ensure the file integrity**
 
 #### Create the new VM
-*Note: I am using Virt Manager (QEMU/KVM) Your actual setup may differ depending on what hypervisor you're using.*
+
+*Note: I am using QEMU (via Virt Manger). Your actual setup may differ depending on what hypervisor you're using.*
+
 
 In Virt Manager:
 - Type: **Linux**
@@ -14,7 +17,7 @@ In Virt Manager:
 - Memory: ~12GB RAM 
 - Disk: 50GB (SCSI or SATA)
 - Network: NAT 
-- Video: `QXL` [Changelog](https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
+- Video: `Virtio`
 - Mount the ISO as the boot device
 - **Don't power on the VM right away. First be sure to set it to boot up in UEFI**
 
@@ -114,13 +117,13 @@ mount -o noatime,compress=zstd:1,space_cache=v2,ssd,subvol=@ /dev/vda2 /mnt
 mkdir -p /mnt/home
 mkdir -p /mnt/var/log
 mkdir -p /mnt/var/cache
-mkdir -p /mnt/efi
+mkdir -p /mnt/boot/efi
 
 # 3. Mount the remaining subvolumes and the EFI partition
 mount -o noatime,compress=zstd:1,space_cache=v2,ssd,subvol=@home /dev/vda2 /mnt/home 
 mount -o noatime,compress=zstd:1,space_cache=v2,ssd,subvol=@log /dev/vda2 /mnt/var/log
 mount -o noatime,compress=zstd:1,space_cache=v2,ssd,subvol=@cache /dev/vda2 /mnt/var/cache
-mount /dev/vda1 /mnt/efi
+mount /dev/vda1 /mnt/boot/efi
 ```
 
 ---
@@ -130,13 +133,11 @@ mount /dev/vda1 /mnt/efi
 *Note: This command installs the core system, an LTS kernel for stability, development tools, filesystem and bootloader components, a full audio stack, and other essential utilities. This comprehensive list ensures the system is ready for detailed configuration in the next phases.*
 
 ```bash 
-pacstrap -K /mnt base base-devel linux-lts linux-lts-headers linux-firmware amd-ucode nano git dkms grub efibootmgr grub-btrfs snapper snap-pac networkmanager openssh pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack wireplumber zsh zsh-autosuggestions zsh-syntax-highlighting man-db man-pages flatpak
+pacstrap -K /mnt base base-devel linux-lts linux-lts-headers linux-firmware amd-ucode nano git dkms grub btrfs-progs efibootmgr networkmanager openssh pipewire pipewire-audio pipewire-alsa pipewire-pulse pipewire-jack wireplumber zsh zsh-autosuggestions zsh-syntax-highlighting man-db man-pages flatpak
 ```
 Notes:
 - **`-K` Flag Added:** The `pacstrap -K` command is used to initialize the pacman keyring in the new system, preventing potential signature-checking issues. It's a best practice.
-- **Core Packages Retained:** `base`, `base-devel`, `linux-lts`, `linux-lts-headers`, `linux-firmware`, `amd-ucode`, `nano`, and `git` are all essential.
-- **`dkms` Added:**  It's non-negotiable for handling the NVIDIA drivers correctly with kernel updates.
-- **Resilience Tools Consolidated:** `grub`, `efibootmgr`, `btrfs-progs` (pulled in by `snapper`), `grub-btrfs`, and `snapper` are all included. Also downloading `snap-pac`, which is an Arch-specific tool that automatically creates snapshots with `pacman` transactions.
+- **Core Packages Retained:** `base`, `base-devel`, `linux-lts`, `linux-lts-headers`, `linux-firmware`, `amd-ucode`, `nano`, `dkms` and `git` are all essential.
 - **Networking & SSH:** `networkmanager` and `openssh` 
 - **Audio Stack Refined:** The Arch tools are `pipewire`, `pipewire-audio`, `pipewire-alsa`, `pipewire-pulse`, `pipewire-jack`, and `wireplumber`. This ensures the complete audio stack is functional from the start.
 - **Shell & Utilities:** `zsh` and its plugins, `man-db`, `manpages`, and `flatpak`
@@ -151,14 +152,14 @@ ls /mnt/etc
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# view the newly created fstab file
-cat /mnt/etc/fstab
-
-# ISSUE --> the `genfstab` command automatically added the `discard=async` mount option to all Btrfs subvolumes. 
+# The `genfstab` command automatically added the `discard=async` mount option to all Btrfs subvolumes. 
 # The problem is that this enables continuous TRIM which is known to cause performance issues and potential data corruption
 
 # FIX --> edit the fstab file to remove `discard=async`
+
 nano /mnt/etc/fstab
+
+# Save and exit
 
 # Confirm Btrfs subvolumes are correctly listed | ensure `compress=zstd`
 cat /mnt/etc/fstab
@@ -245,33 +246,28 @@ systemctl enable NetworkManager.service
 
 ##### Install GRUB (UEFI)
 ```bash
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+# 
+# First, edit the default GRUB configuration to add kernel parameters needed for Phase 2. 
+# This ensures they are baked into the final config file. 
+# 
+nano /etc/default/grub 
+# Find this line: 
+# GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet" 
+# 
+# And change it to this, adding parameters for AppArmor which will be installed later: 
+# GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet apparmor=1 security=apparmor" 
+# 
+# Save and exit the editor.
 
-# edit the default GRUB config to sort the snapshots
-nano /etc/default/grub
 
-# scroll to bottom and add this line
-GRUB_BTRFS_SUBMENUNAME="Snapshots"
+# Install GRUB bootloader
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 
-# save that shit and exit
-`Ctrl+O`, `Enter` -->  `Ctrl+X`
-
-# now generate the GRUB config file
+# Now, generate the final GRUB config file 
 grub-mkconfig -o /boot/grub/grub.cfg
 
-# confirm correct loading of GRUB
-ls /efi/EFI/GRUB
-# should see something like:
-grubx64.efi
-```
-*See section 2 of the [Changelog}(https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
-
----
-
-##### Install Git-LFS
-```bash
-pacman -S git-lfs # easier to handle larger files in git
-git lfs install
+# Verify
+ls /boot/grub/grub.cfg
 ```
 
 ---
@@ -285,66 +281,6 @@ reboot
 
 ---
 
-#### Install and Configure Nvidia Driver
-
-*See section 3 of the [Changelog](https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
-
-*Note: This is performed immediately after the first reboot and login. The system is running on the base kernel, and the network is active. We install the proprietary NVIDIA driver and configure kernel parameters before installing a desktop environment.
-Also adding a crucial line in GRUB to ensure that AppArmor functions later when installed*
-
-```bash
-# Since we enabled it before, the network should be active. If not, run:
-sudo systemctl enable --now NetworkManager
-
-# Install the correct driver for the LTS kernel, plus the configuration utility
-sudo pacman -Syu --noconfirm nvidia-lts nvidia-settings
-
-# Configure kernel parameters to enable Kernel Mode Setting (KMS)
-# This is mandatory for a smooth boot process and for Wayland to function correctly later.
-sudo nano /etc/default/grub
-
-# Find this line:
-# GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
-#
-# And change it to this:
-# GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet nvidia_drm.modeset=1 apparmor=1 security=apparmor"
-
-# Save the file, then regenerate the GRUB config to apply the changes
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-
-# Reboot to load the new kernel parameters and the NVIDIA driver
-sudo reboot
-```
-
----
-
-##### Configure Snapper for Snapshot Management
-*See section 2 of the [Changelog](https://github.com/RogueWizard42/linux_labs/blob/main/OS_Builds/arch-linux/Linux-Black-Phase1-changelog.md)
-```bash
-snapper -c root create-config /
-snapper -c home create-config /home
-# Edit retention policies 
-nano /etc/snapper/configs/root
-# Example settings:
-# NUMBER_LIMIT="10"
-# TIMELINE_LIMIT_DAILY="7"
-# TIMELINE_LIMIT_HOURLY="12"
-# TIMELINE_LIMIT_WEEKLY="1"
-# TIMELINE_LIMIT_MONTHLY="0"
-# TIMELINE_LIMIT_YEARLY="0"
-systemctl enable snapper-timeline.timer
-systemctl enable snapper-cleanup.timer
-```
-
-##### Snapper Config Errors
-- **Issue:** The initial `snapper -c root create-config /` command failed with `subvolume already covered`.
-- **Diagnosis:** A broken, empty `root` config file was likely created by a failing `snap-pac` hook during the `pacstrap` phase.
-- **Resolution:**
-    1.  The broken config was identified using `sudo snapper list-configs`.
-    2.  The broken config was removed: `sudo snapper -c root delete-config`.
-    3.  The `create-config` commands were then run successfully for both `/` and `/home`.
-
----
 
 ##### Install AUR (Arch User Repo)
 *Boot back in and log in as the new user*
@@ -355,7 +291,6 @@ makepkg -si
 ```
 
 ---
-
 ### Validation
 Confirm **LTS** kernel
 ```bash
@@ -377,11 +312,6 @@ Verify **GRUB** install
 ls /boot/grub
 ```
 
-Snapshots
-```bash
-snapper list
-```
-
 ---
 
 ### End of Phase 1
@@ -390,9 +320,7 @@ The system is successfully installed and boots to a command-line interface. All 
 - The LTS kernel is running.
 - Network is operational.
 - The Btrfs subvolume layout is correct.
-- GRUB is installed and configured for snapshots.
-- Snapper is creating and managing snapshots automatically.
 
 ##### Notes
 
-**Outstanding Minor Issues for Phase 2:** - The `Failed to set locale` warning needs to be resolved. - The `fstrim.timer` needs to be enabled to handle periodic TRIM for the SSD.
+**Outstanding Minor Issues for Phase 2:** The `fstrim.timer` needs to be enabled to handle periodic TRIM for the SSD.
