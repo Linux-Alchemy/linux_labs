@@ -31,7 +31,7 @@ All build phases are fully documented in this repo.
 - **AppArmor** active for core system services
 - **Firejail** manually applied to high-risk apps (Firefox, VLC, Tor Browser, etc.)
 - **Flatpak** used where Firejail was overkill or too restrictive
-- **Snapper** configured for root and home snapshots, with retention policies in place
+- **Timeshift** used in place of *snapper* for snapshot and rollback management
 - **UFW** active with sane default rules
 
 ---
@@ -49,6 +49,7 @@ Highly recommend building it yourself if you're even a little curious. There’s
 - `Phase 1`: Base system install + filesystem + essential packages
 - `Phase 2`: Daily apps, DE, theming, tools
 - `Phase 3`: Hardening + security layers
+- `Phase 4`: ISO conversion via `ArchISO`
 
 Each phase is its own Markdown doc — clean, annotated, and meant to be cloned, modified, or built on.
 
