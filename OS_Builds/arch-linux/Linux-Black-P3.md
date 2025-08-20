@@ -152,7 +152,7 @@ In this section, we'll briefly look at hardening a couple of system services. Th
 ```bash
 sudo aa-status
 ```
-This should output a list of profiles, starting with a bunch that are in 'enforce' mode, a few that might be in 'compain' mode and a bunch in 'unconfined' mode (there, but not doing anything)
+This should output a list of profiles, starting with a bunch that are in 'enforce' mode, a few that might be in 'complain' mode and a bunch in 'unconfined' mode (there, but not doing anything)
 
 In the case of Linux Black, meant to be a fairly lean system, there's a bunch of profiles showing in 'enforce' mode that just aren't needed. So we'll go ahead a disable those. The ~80 profiles don't have too much of an impact on boot time so removing a few won't make a noticable difference. That said, you CAN have a seriously locked down system with 1500+ profiles if you want. 
 **Don't do this.**
