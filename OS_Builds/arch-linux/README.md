@@ -49,7 +49,7 @@ Highly recommend building it yourself if you're even a little curious. There’s
 - `Phase 1`: Base system install + filesystem + essential packages
 - `Phase 2`: Daily apps, DE, theming, tools
 - `Phase 3`: Hardening + security layers
-- `Phase 4`: ISO conversion via `ArchISO`
+- `Phase 4`: ISO conversion via `ArchISO` (Under Construction)
 
 Each phase is its own Markdown doc — clean, annotated, and meant to be cloned, modified, or built on.
 
