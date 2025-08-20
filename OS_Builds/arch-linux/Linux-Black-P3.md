@@ -101,7 +101,8 @@ Default: deny (incoming), allow (outgoing), disabled (routed)
 New profiles: skip
 
 # this is the default setting
-# If this were a web server, you'd also add rules like `sudo ufw allow http` and `sudo ufw allow https`, but for our workstation for now we're just going to enable ssh (port 22)
+# If this were a web server, you'd also add rules like `sudo ufw allow http` and `sudo ufw allow https`
+# but for our workstation for now we're just going to enable ssh (port 22)
 
 sudo ufw allow ssh
 
